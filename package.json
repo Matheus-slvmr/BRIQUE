@@ -18,6 +18,7 @@
     "db:migrate": "tsx database/migrate.ts"
   },
   "dependencies": {
+    "@libsql/client": "^0.18.0",
     "better-sqlite3": "^13.0.3",
     "drizzle-orm": "0.45.2",
     "lucide-react": "1.31.0",

@@ -1,5 +1,4 @@
 "use server";
-
 import { randomUUID } from "node:crypto";
 import { and, eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
@@ -9,46 +8,8 @@ import { auditLogs, marketComparables, opportunities, riskFlags } from "@/databa
 import { requireUser } from "@/lib/auth/session";
 import { parseBRL } from "@/lib/money";
 import { opportunitySchema } from "@/lib/validation/opportunity";
-
-const str = (f: FormData, key: string) => String(f.get(key) ?? "").trim();
-const maybe = (f: FormData, key: string) => str(f, key) || null;
-
-export async function createOpportunity(form: FormData) {
-  const user = await requireUser();
-  const payload = opportunitySchema.parse({
-    title: str(form, "title"), originalUrl: str(form, "originalUrl"), source: str(form, "source"), category: str(form, "category"), subcategory: str(form, "subcategory"), brand: str(form, "brand"), model: str(form, "model"), version: str(form, "version"), condition: str(form, "condition"),
-    askingPriceCents: parseBRL(form.get("askingPrice")), negotiatedPriceCents: form.get("negotiatedPrice") ? parseBRL(form.get("negotiatedPrice")) : undefined,
-    city: str(form, "city") || "Goiânia", neighborhood: str(form, "neighborhood"), capturedAt: str(form, "capturedAt"), riskLevel: str(form, "riskLevel"), expectedDaysToSell: Number(form.get("expectedDaysToSell") || 30)
-  });
-  const id = randomUUID(), now = new Date().toISOString();
-  db.transaction((tx) => {
-    tx.insert(opportunities).values({ id, userId: user.userId, title: payload.title, originalUrl: payload.originalUrl || null, source: payload.source, category: payload.category, subcategory: payload.subcategory || null, brand: payload.brand || null, model: payload.model || null, version: payload.version || null, condition: payload.condition, askingPriceCents: payload.askingPriceCents, negotiatedPriceCents: payload.negotiatedPriceCents ?? null, city: payload.city, neighborhood: payload.neighborhood || null, capturedAt: new Date(payload.capturedAt).toISOString(), riskLevel: payload.riskLevel, expectedDaysToSell: payload.expectedDaysToSell, description: maybe(form,"description"), defects: maybe(form,"defects"), accessories: maybe(form,"accessories"), specifications: maybe(form,"specifications"), notes: maybe(form,"notes"), contact: maybe(form,"contact"), travelCostCents: parseBRL(form.get("travelCost")), purchaseShippingCents: parseBRL(form.get("purchaseShipping")), partsCostCents: parseBRL(form.get("partsCost")), repairCostCents: parseBRL(form.get("repairCost")), cleaningCostCents: parseBRL(form.get("cleaningCost")), packagingCostCents: parseBRL(form.get("packagingCost")), otherPurchaseCostsCents: parseBRL(form.get("otherPurchaseCosts")), minimumProfitCents: parseBRL(form.get("minimumProfit")) }).run();
-    tx.insert(auditLogs).values({ id: randomUUID(), userId: user.userId, entityType: "Opportunity", entityId: id, action: "CREATE", afterJson: JSON.stringify({ title: payload.title, askingPriceCents: payload.askingPriceCents }), occurredAt: now }).run();
-    for (const [type, severity, description] of [["PAGAMENTO_ANTECIPADO","CRITICO","Vendedor solicitou pagamento antecipado"],["PRECO_MUITO_BAIXO","ALTO","Preço parece muito abaixo do mercado"],["PRESSAO","MEDIO","Há pressão para fechar rapidamente"]] as const) if (form.get(type)) tx.insert(riskFlags).values({ id: randomUUID(), opportunityId: id, type, severity, description }).run();
-  });
-  redirect(`/oportunidades/${id}`);
-}
-
-export async function addComparable(form: FormData) {
-  const user = await requireUser(), opportunityId = str(form, "opportunityId");
-  const own = db.select({ id: opportunities.id }).from(opportunities).where(and(eq(opportunities.id, opportunityId), eq(opportunities.userId, user.userId))).get();
-  if (!own) throw new Error("Oportunidade não encontrada");
-  db.insert(marketComparables).values({ id: randomUUID(), opportunityId, source: str(form,"source"), url: maybe(form,"url"), title: str(form,"title"), priceCents: parseBRL(form.get("price")), condition: str(form,"condition"), location: maybe(form,"location"), shippingCents: parseBRL(form.get("shipping")), collectedAt: new Date(str(form,"collectedAt")).toISOString(), status: str(form,"status"), priceType: str(form,"priceType"), notes: maybe(form,"notes"), included: form.get("included") === "on" }).run();
-  revalidatePath(`/oportunidades/${opportunityId}`);
-}
-
-export async function toggleComparable(form: FormData) {
-  const user = await requireUser(), id = str(form,"id"), opportunityId = str(form,"opportunityId");
-  const own = db.select({ id: marketComparables.id }).from(marketComparables).innerJoin(opportunities, eq(marketComparables.opportunityId, opportunities.id)).where(and(eq(marketComparables.id,id), eq(opportunities.userId,user.userId))).get();
-  if (!own) throw new Error("Comparável não encontrado");
-  db.update(marketComparables).set({ included: form.get("included") !== "true", updatedAt: new Date().toISOString() }).where(eq(marketComparables.id,id)).run();
-  revalidatePath(`/oportunidades/${opportunityId}`);
-}
-
-export async function duplicateOpportunity(form: FormData) {
-  const user = await requireUser(), id = str(form,"id"), original = db.select().from(opportunities).where(and(eq(opportunities.id,id),eq(opportunities.userId,user.userId))).get();
-  if (!original) throw new Error("Oportunidade não encontrada");
-  const newId = randomUUID();
-  db.insert(opportunities).values({ ...original, id: newId, title: `${original.title} — cenário alternativo`, status: "EM_ANALISE", createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() }).run();
-  redirect(`/oportunidades/${newId}`);
-}
+const str=(f:FormData,key:string)=>String(f.get(key)??"").trim();const maybe=(f:FormData,key:string)=>str(f,key)||null;
+export async function createOpportunity(form:FormData){const user=await requireUser();const payload=opportunitySchema.parse({title:str(form,"title"),originalUrl:str(form,"originalUrl"),source:str(form,"source"),category:str(form,"category"),subcategory:str(form,"subcategory"),brand:str(form,"brand"),model:str(form,"model"),version:str(form,"version"),condition:str(form,"condition"),askingPriceCents:parseBRL(form.get("askingPrice")),negotiatedPriceCents:form.get("negotiatedPrice")?parseBRL(form.get("negotiatedPrice")):undefined,city:str(form,"city")||"Goiânia",neighborhood:str(form,"neighborhood"),capturedAt:str(form,"capturedAt"),riskLevel:str(form,"riskLevel"),expectedDaysToSell:Number(form.get("expectedDaysToSell")||30)});const id=randomUUID(),now=new Date().toISOString();await db.transaction(async tx=>{await tx.insert(opportunities).values({id,userId:user.userId,title:payload.title,originalUrl:payload.originalUrl||null,source:payload.source,category:payload.category,subcategory:payload.subcategory||null,brand:payload.brand||null,model:payload.model||null,version:payload.version||null,condition:payload.condition,askingPriceCents:payload.askingPriceCents,negotiatedPriceCents:payload.negotiatedPriceCents??null,city:payload.city,neighborhood:payload.neighborhood||null,capturedAt:new Date(payload.capturedAt).toISOString(),riskLevel:payload.riskLevel,expectedDaysToSell:payload.expectedDaysToSell,description:maybe(form,"description"),defects:maybe(form,"defects"),accessories:maybe(form,"accessories"),specifications:maybe(form,"specifications"),notes:maybe(form,"notes"),contact:maybe(form,"contact"),travelCostCents:parseBRL(form.get("travelCost")),purchaseShippingCents:parseBRL(form.get("purchaseShipping")),partsCostCents:parseBRL(form.get("partsCost")),repairCostCents:parseBRL(form.get("repairCost")),cleaningCostCents:parseBRL(form.get("cleaningCost")),packagingCostCents:parseBRL(form.get("packagingCost")),otherPurchaseCostsCents:parseBRL(form.get("otherPurchaseCosts")),minimumProfitCents:parseBRL(form.get("minimumProfit"))}).run();await tx.insert(auditLogs).values({id:randomUUID(),userId:user.userId,entityType:"Opportunity",entityId:id,action:"CREATE",afterJson:JSON.stringify({title:payload.title,askingPriceCents:payload.askingPriceCents}),occurredAt:now}).run();for(const[type,severity,description]of [["PAGAMENTO_ANTECIPADO","CRITICO","Vendedor solicitou pagamento antecipado"],["PRECO_MUITO_BAIXO","ALTO","Preço parece muito abaixo do mercado"],["PRESSAO","MEDIO","Há pressão para fechar rapidamente"]] as const)if(form.get(type))await tx.insert(riskFlags).values({id:randomUUID(),opportunityId:id,type,severity,description}).run()});redirect(`/oportunidades/${id}`)}
+export async function addComparable(form:FormData){const user=await requireUser(),opportunityId=str(form,"opportunityId"),own=await db.select({id:opportunities.id}).from(opportunities).where(and(eq(opportunities.id,opportunityId),eq(opportunities.userId,user.userId))).get();if(!own)throw new Error("Oportunidade não encontrada");await db.insert(marketComparables).values({id:randomUUID(),opportunityId,source:str(form,"source"),url:maybe(form,"url"),title:str(form,"title"),priceCents:parseBRL(form.get("price")),condition:str(form,"condition"),location:maybe(form,"location"),shippingCents:parseBRL(form.get("shipping")),collectedAt:new Date(str(form,"collectedAt")).toISOString(),status:str(form,"status"),priceType:str(form,"priceType"),notes:maybe(form,"notes"),included:form.get("included")==="on"}).run();revalidatePath(`/oportunidades/${opportunityId}`)}
+export async function toggleComparable(form:FormData){const user=await requireUser(),id=str(form,"id"),opportunityId=str(form,"opportunityId"),own=await db.select({id:marketComparables.id}).from(marketComparables).innerJoin(opportunities,eq(marketComparables.opportunityId,opportunities.id)).where(and(eq(marketComparables.id,id),eq(opportunities.userId,user.userId))).get();if(!own)throw new Error("Comparável não encontrado");await db.update(marketComparables).set({included:form.get("included")!=="true",updatedAt:new Date().toISOString()}).where(eq(marketComparables.id,id)).run();revalidatePath(`/oportunidades/${opportunityId}`)}
+export async function duplicateOpportunity(form:FormData){const user=await requireUser(),id=str(form,"id"),original=await db.select().from(opportunities).where(and(eq(opportunities.id,id),eq(opportunities.userId,user.userId))).get();if(!original)throw new Error("Oportunidade não encontrada");const newId=randomUUID();await db.insert(opportunities).values({...original,id:newId,title:`${original.title} — cenário alternativo`,status:"EM_ANALISE",createdAt:new Date().toISOString(),updatedAt:new Date().toISOString()}).run();redirect(`/oportunidades/${newId}`)}

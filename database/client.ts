@@ -1,23 +1,25 @@
-import Database from "better-sqlite3";
-import { drizzle } from "drizzle-orm/better-sqlite3";
-import { migrate } from "drizzle-orm/better-sqlite3/migrator";
+import { createClient } from "@libsql/client";
+import { drizzle } from "drizzle-orm/libsql";
+import { migrate } from "drizzle-orm/libsql/migrator";
 import fs from "node:fs";
 import path from "node:path";
 import * as schema from "./schema";
 
 const dbFile = process.env.BRIQUEGO_DB_FILE === "e2e.db" ? "e2e.db" : "briquego.db";
-const dbPath = path.join(process.cwd(), "data", dbFile);
-fs.mkdirSync(path.dirname(dbPath), { recursive: true });
+export const dbPath = path.join(process.cwd(), "data", dbFile);
+export const isRemoteDatabase = Boolean(process.env.TURSO_DATABASE_URL) && process.env.BRIQUEGO_DB_FILE !== "e2e.db";
 
-const globalDb = globalThis as unknown as { briquegoSqlite?: Database.Database };
-const sqlite = globalDb.briquegoSqlite ?? new Database(dbPath);
-sqlite.pragma("journal_mode = WAL");
-sqlite.pragma("foreign_keys = ON");
+if (!isRemoteDatabase) fs.mkdirSync(path.dirname(dbPath), { recursive: true });
 
-if (!globalDb.briquegoSqlite) {
-  migrate(drizzle(sqlite, { schema }), { migrationsFolder: path.resolve("database/migrations") });
-  globalDb.briquegoSqlite = sqlite;
+const globalDb = globalThis as unknown as { briquegoClient?: ReturnType<typeof createClient>; briquegoMigrated?: boolean };
+export const client = globalDb.briquegoClient ?? createClient({
+  url: process.env.TURSO_DATABASE_URL ?? `file:${dbPath}`,
+  authToken: process.env.TURSO_AUTH_TOKEN,
+});
+export const db = drizzle(client, { schema });
+
+if (!globalDb.briquegoMigrated) {
+  await migrate(db, { migrationsFolder: path.resolve("database/migrations") });
+  globalDb.briquegoClient = client;
+  globalDb.briquegoMigrated = true;
 }
-
-export const db = drizzle(sqlite, { schema });
-export { dbPath, sqlite };

@@ -7,7 +7,7 @@ const checklists = [
   { id: "checklist-notebooks", category: "Notebooks", name: "Inspeção — Notebooks", items: ["Bateria e carregador testados", "SMART do armazenamento verificado", "Tela, teclado, portas e Wi‑Fi testados", "BIOS sem senha ou bloqueio corporativo"] },
   { id: "checklist-videogames", category: "Videogames", name: "Inspeção — Videogames", items: ["Console conecta à rede sem bloqueio", "Leitor, portas e controles testados", "PS4 possui leitor de disco funcionando", "Modelo não é Xbox One Fat", "Lacres e sinais de abertura inspecionados", "Conta do vendedor foi removida"] },
   { id: "checklist-bicicletas", category: "Bicicletas", name: "Inspeção — Bicicletas", items: ["Número do quadro registrado", "Quadro sem trincas ou soldas suspeitas", "Freios, relação, rodas e suspensão testados", "Origem/titularidade verificada"] },
-  { id: "checklist-eletrodomesticos", category: "Eletrodomésticos", name: "Inspeção — Eletrodomésticos", items: ["Tensão elétrica confirmada", "Aparelho testado em ciclo completo", "Cabo, plugue e isolamento íntegros", "Ruídos, vazamentos e aquecimento anormal ausentes"] },
+  { id: "checklist-eletrodomesticos", category: "Eletrodomésticos", name: "Inspeção — Eletrodomésticos", items: ["Tensão elétrica confirmada", "Aparelho testado em ciclo completo", "Cabo, plugue e isolamento íntegro", "Ruídos, vazamentos e aquecimento anormal ausentes"] },
   { id: "checklist-ferramentas", category: "Ferramentas", name: "Inspeção — Ferramentas", items: ["Número de série e procedência verificados", "Ferramenta testada sob carga", "Proteções e travas funcionando", "Bateria e carregador avaliados"] },
 ];
 
@@ -18,10 +18,10 @@ const sources = [
   { id: "source-fipe", connectorId: "connector-fipe", name: "Tabela FIPE", docs: "https://veiculos.fipe.org.br/", auth: "NENHUMA", data: "Digitação assistida da consulta pública para veículos", limits: "A FIPE declara que não fornece API oficial", status: "NAO_SUPORTADO" },
 ];
 
-export function ensureReferenceData() {
-  for (const item of checklists) db.insert(inspectionChecklists).values({ ...item, userId: null }).onConflictDoNothing().run();
+export async function ensureReferenceData() {
+  for (const item of checklists) await db.insert(inspectionChecklists).values({ ...item, userId: null }).onConflictDoNothing().run();
   for (const item of sources) {
-    db.insert(dataSources).values({ id: item.id, name: item.name, officialDocsUrl: item.docs, priceTypes: ["ANUNCIADO", "VENDA_CONFIRMADA"] }).onConflictDoNothing().run();
-    db.insert(connectors).values({ id: item.connectorId, dataSourceId: item.id, authType: item.auth, availableData: item.data, limits: item.limits, status: item.status }).onConflictDoNothing().run();
+    await db.insert(dataSources).values({ id: item.id, name: item.name, officialDocsUrl: item.docs, priceTypes: ["ANUNCIADO", "VENDA_CONFIRMADA"] }).onConflictDoNothing().run();
+    await db.insert(connectors).values({ id: item.connectorId, dataSourceId: item.id, authType: item.auth, availableData: item.data, limits: item.limits, status: item.status }).onConflictDoNothing().run();
   }
 }

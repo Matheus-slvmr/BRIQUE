@@ -16,7 +16,7 @@ export default async function Dashboard() {
     db.select().from(ledgerEntries).where(eq(ledgerEntries.userId, user.userId)).all(),
     db.select({ sale: sales, item: inventoryItems, opportunity: opportunities }).from(sales).innerJoin(inventoryItems, eq(sales.inventoryItemId, inventoryItems.id)).innerJoin(opportunities, eq(inventoryItems.opportunityId, opportunities.id)).where(eq(inventoryItems.userId, user.userId)).all(),
   ]);
-  const settings = getBusinessSettings(user.userId);
+  const settings = await getBusinessSettings(user.userId);
   const entries = ledger.filter((entry) => entry.direction === "ENTRADA" && entry.settledAt).reduce((sum, entry) => sum + entry.amountCents, 0);
   const exits = ledger.filter((entry) => entry.direction === "SAIDA" && entry.settledAt).reduce((sum, entry) => sum + entry.amountCents, 0);
   const balance = entries - exits;

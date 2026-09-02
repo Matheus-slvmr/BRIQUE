@@ -12,8 +12,8 @@ const safe = (value: unknown) => {
 export async function GET() {
   const user = await getSession();
   if (!user) return new Response("Não autorizado", { status: 401 });
-  const ops = db.select().from(opportunities).where(eq(opportunities.userId, user.userId)).all();
-  const ledger = db.select().from(ledgerEntries).where(eq(ledgerEntries.userId, user.userId)).all();
+  const ops = await db.select().from(opportunities).where(eq(opportunities.userId, user.userId)).all();
+  const ledger = await db.select().from(ledgerEntries).where(eq(ledgerEntries.userId, user.userId)).all();
   const rows: unknown[][] = [
     ["tipo_registro", "id", "data", "titulo_descricao", "status_tipo", "valor_centavos", "tipo_preco"],
     ...ops.map((o) => ["oportunidade", o.id, o.capturedAt, o.title, o.status, o.askingPriceCents, "ANUNCIADO"]),
