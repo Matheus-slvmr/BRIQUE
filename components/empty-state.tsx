@@ -1,0 +1,2 @@
+import Link from "next/link";
+export function EmptyState({ title, text, href, action }: { title: string; text: string; href?: string; action?: string }) { return <div className="panel grid place-items-center p-10 text-center"><div><div className="mx-auto mb-4 grid h-12 w-12 place-items-center rounded-full bg-lime/40 text-xl">↗</div><h2 className="font-black">{title}</h2><p className="mx-auto mt-2 max-w-md text-sm text-[var(--muted)]">{text}</p>{href && <Link href={href} className="button mt-5">{action}</Link>}</div></div>; }

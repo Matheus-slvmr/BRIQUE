@@ -1,0 +1,2 @@
+titulo;url_original;fonte;categoria;subcategoria;marca;modelo;versao;condicao;preco_pedido_centavos;preco_negociado_centavos;cidade;bairro;data_captura;observacoes
+DADOS FICTÍCIOS - Smartphone para exemplo;https://example.invalid/anuncio;Outra;Celulares;Smartphones;Marca Exemplo;Modelo Exemplo;128 GB;USADO_BOM;100000;90000;Goiânia;Setor Fictício;2026-09-01;DADOS FICTÍCIOS - remova esta linha antes de importar

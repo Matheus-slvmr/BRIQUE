@@ -1,0 +1,4 @@
+import { describe,expect,it } from "vitest";
+import { buildScenarios, financialResult } from "@/lib/finance/calculations";
+import { marketStatistics } from "@/lib/scoring/statistics";
+describe("fluxo financeiro principal",()=>{it("mantém coerência da análise até a venda real",()=>{const comparables=[150_000,160_000,170_000].map(priceCents=>({priceCents,collectedAt:new Date().toISOString(),included:true,priceType:"ANUNCIADO",condition:"USADO_BOM"}));const market=marketStatistics(comparables),acquisition={purchasePriceCents:100_000,travelCents:5_000,repairCents:10_000};const probable=buildScenarios(acquisition,market,20)[1];expect(probable.salePriceCents).toBe(160_000);const actual=financialResult(acquisition,{salePriceCents:155_000,platformFeeCents:5_000});expect(actual.costCents).toBe(115_000);expect(actual.revenueCents).toBe(150_000);expect(actual.profitCents).toBe(35_000)})});

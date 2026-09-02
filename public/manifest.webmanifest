@@ -1,0 +1,11 @@
+{
+  "name": "BriqueGO",
+  "short_name": "BriqueGO",
+  "description": "Gestão de oportunidades e revenda de usados",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f5f2e9",
+  "theme_color": "#2f5d45",
+  "lang": "pt-BR",
+  "icons": [{ "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }]
+}

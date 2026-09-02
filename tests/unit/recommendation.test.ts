@@ -1,0 +1,3 @@
+import { describe,expect,it } from "vitest";
+import { recommend } from "@/lib/scoring/recommendation";
+describe("recomendação explicável",()=>{it("exige ao menos três comparáveis",()=>expect(recommend({comparableCount:2,confidence:"BAIXA",roi:90,margin:50,riskLevel:"BAIXO"}).label).toBe("Dados insuficientes"));it("prioriza sinal crítico de fraude",()=>expect(recommend({comparableCount:5,confidence:"ALTA",roi:90,margin:50,riskLevel:"BAIXO",fraudRisk:true}).label).toBe("Não comprar"));it("classifica excelente com motivos legíveis",()=>{const result=recommend({comparableCount:5,confidence:"ALTA",roi:42,margin:26,riskLevel:"BAIXO"});expect(result.label).toBe("Excelente oportunidade");expect(result.reasons.length).toBeGreaterThan(1)})});
