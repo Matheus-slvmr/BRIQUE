@@ -1,10 +1,11 @@
 import Link from "next/link";
-import { BarChart3, Boxes, CircleDollarSign, PlusCircle, Search, Settings, ShieldCheck, Table2 } from "lucide-react";
+import { BarChart3, Boxes, CircleDollarSign, PlusCircle, Radar, Search, Settings, ShieldCheck, Table2 } from "lucide-react";
 import { ThemeToggle } from "./theme-toggle";
 
 const nav = [
   ["Painel", "/", BarChart3],
   ["Oportunidades", "/oportunidades", Search],
+  ["Radar", "/radar", Radar],
   ["Estoque", "/estoque", Boxes],
   ["Financeiro", "/financeiro", CircleDollarSign],
   ["Tabela", "/referencias", Table2],
