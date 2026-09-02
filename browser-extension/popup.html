@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Capturador BriqueGO</title>
+    <link rel="stylesheet" href="popup.css" />
+  </head>
+  <body>
+    <header>
+      <span class="logo">Brique<b>GO</b></span>
+      <span class="tag">CAPTURADOR</span>
+    </header>
+
+    <main>
+      <div class="intro">
+        <h1>Trazer anúncio</h1>
+        <p>Abra um produto no Marketplace, OLX ou Mercado Livre e capture os dados visíveis.</p>
+      </div>
+
+      <button id="capture" class="primary" type="button">Capturar anúncio desta aba</button>
+      <p id="status" class="status" aria-live="polite"></p>
+
+      <section id="preview" class="preview" hidden>
+        <img id="photo" alt="Foto encontrada no anúncio" hidden />
+        <div class="preview-copy">
+          <span id="source" class="source"></span>
+          <strong id="title"></strong>
+          <span id="price" class="price"></span>
+          <span id="location" class="location"></span>
+        </div>
+        <button id="send" class="primary" type="button">Abrir no BriqueGO</button>
+      </section>
+    </main>
+
+    <footer>A extensão só lê a página quando você aperta o botão.</footer>
+    <script src="popup.js"></script>
+  </body>
+</html>

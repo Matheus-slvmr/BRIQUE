@@ -1,0 +1,11 @@
+{
+  "manifest_version": 3,
+  "name": "Capturador BriqueGO",
+  "version": "1.0.0",
+  "description": "Envia anúncios do Facebook Marketplace, OLX e Mercado Livre para análise no BriqueGO.",
+  "permissions": ["activeTab", "scripting", "tabs"],
+  "action": {
+    "default_title": "Enviar anúncio ao BriqueGO",
+    "default_popup": "popup.html"
+  }
+}
