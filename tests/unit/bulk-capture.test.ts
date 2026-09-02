@@ -1,0 +1,2 @@
+import { describe,expect,it } from "vitest";import { parseBulkListings } from "@/lib/bulk-capture";
+describe("captura em lote",()=>{it("interpreta título, preço e link",()=>{const[row]=parseBulkListings("PS4 Slim usado | 950,00 | https://facebook.com/item/1");expect(row.model).toBe("PS4 Slim");expect(row.priceCents).toBe(95000)});it("rejeita linha sem preço",()=>expect(()=>parseBulkListings("PS4 Slim")).toThrow(/Linha 1/))})

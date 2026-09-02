@@ -1,4 +1,4 @@
-import { evaluatePriceGuide } from "@/lib/price-guide";
+import { evaluatePriceGuide, type PriceGuideEntry } from "@/lib/price-guide";
 
 export const MARKETPLACE_NEGOTIATION_TOLERANCE_CENTS = 5_000;
 
@@ -16,21 +16,22 @@ export type RadarOpportunity = {
   askingPriceCents: number;
 };
 
-export function evaluateMarketplaceOpportunity(item: RadarOpportunity) {
-  const guide = evaluatePriceGuide(item);
+export function evaluateMarketplaceOpportunity(item: RadarOpportunity, options: { entries?: PriceGuideEntry[]; toleranceCents?: number } = {}) {
+  const toleranceCents = options.toleranceCents ?? MARKETPLACE_NEGOTIATION_TOLERANCE_CENTS;
+  const guide = evaluatePriceGuide(item, options.entries);
   const buyMaxCents = guide.adjustedBuyMaxCents;
 
   if (!item.source.toLowerCase().includes("facebook marketplace")) return null;
   if (!guide.reference || buyMaxCents === null || guide.blockedReasons.length > 0) return null;
 
   const differenceFromLimitCents = item.askingPriceCents - buyMaxCents;
-  if (differenceFromLimitCents > MARKETPLACE_NEGOTIATION_TOLERANCE_CENTS) return null;
+  if (differenceFromLimitCents > toleranceCents) return null;
 
   return {
     item,
     reference: guide.reference,
     buyMaxCents,
-    maximumRadarPriceCents: buyMaxCents + MARKETPLACE_NEGOTIATION_TOLERANCE_CENTS,
+    maximumRadarPriceCents: buyMaxCents + toleranceCents,
     differenceFromLimitCents,
     negotiationNeededCents: Math.max(0, differenceFromLimitCents),
     estimatedGrossProfitCents: guide.reference.saleReferenceCents - Math.min(item.askingPriceCents, buyMaxCents),
@@ -38,9 +39,9 @@ export function evaluateMarketplaceOpportunity(item: RadarOpportunity) {
   };
 }
 
-export function rankMarketplaceOpportunities(items: RadarOpportunity[]) {
+export function rankMarketplaceOpportunities(items: RadarOpportunity[], options: { entries?: PriceGuideEntry[]; toleranceCents?: number } = {}) {
   return items
-    .map(evaluateMarketplaceOpportunity)
+    .map((item) => evaluateMarketplaceOpportunity(item, options))
     .filter((result): result is NonNullable<typeof result> => result !== null)
     .sort((a, b) => {
       if (a.status !== b.status) return a.status === "DENTRO_DO_TETO" ? -1 : 1;

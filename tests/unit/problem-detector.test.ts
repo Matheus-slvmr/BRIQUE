@@ -1,0 +1,2 @@
+import { describe,expect,it } from "vitest";import { detectProblems } from "@/lib/problem-detector";
+describe("detector de problemas",()=>{it("encontra múltiplos sinais",()=>{const result=detectProblems("PS4 sem leitor", "não liga e está trincado");expect(result.map(x=>x.label)).toEqual(expect.arrayContaining(["Leitor ausente ou com defeito","Não liga","Dano físico"]))});it("não inventa problema sem expressão",()=>expect(detectProblems("produto em bom estado")).toEqual([]))})

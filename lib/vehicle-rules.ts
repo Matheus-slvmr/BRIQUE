@@ -1,0 +1,2 @@
+export function vehiclePurchaseLimit(type:"CARRO"|"MOTO",referenceCents:number){return type==="CARRO"?Math.round(referenceCents*0.8):Math.max(0,referenceCents-300000)}
+export function vehicleMargin(type:"CARRO"|"MOTO",referenceCents:number,purchaseCents:number){const required=vehiclePurchaseLimit(type,referenceCents);return{requiredMaxCents:required,marginCents:referenceCents-purchaseCents,approved:purchaseCents<=required}}

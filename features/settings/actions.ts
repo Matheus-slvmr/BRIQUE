@@ -1,0 +1,10 @@
+"use server";
+import { revalidatePath } from "next/cache";
+import { requireUser } from "@/lib/auth/session";
+import { getBusinessSettings,getPriceOverrides,setJsonSetting } from "@/lib/local-settings";
+import { parseBRL } from "@/lib/money";
+import { priceGuideEntries, PRICE_GUIDE_UPDATED_AT } from "@/lib/price-guide";
+export async function saveBusinessSettings(form:FormData){const user=await requireUser(),current=getBusinessSettings(user.userId);setJsonSetting(user.userId,"business",{reserveCents:parseBRL(form.get("reserve")),monthlyGoalCents:parseBRL(form.get("monthlyGoal")),staleDays:Math.max(1,Number(form.get("staleDays")||current.staleDays)),radarToleranceCents:parseBRL(form.get("radarTolerance"))});revalidatePath("/");revalidatePath("/radar");revalidatePath("/configuracoes")}
+export async function savePriceEntry(form:FormData){const user=await requireUser(),model=String(form.get("model")||""),buyMaxCents=parseBRL(form.get("buyMax")),saleReferenceCents=parseBRL(form.get("saleReference"));if(!model||buyMaxCents<=0||saleReferenceCents<=0)throw new Error("Valores inválidos");const overrides=getPriceOverrides(user.userId),previous=overrides[model],now=new Date().toISOString();overrides[model]={buyMaxCents,saleReferenceCents,updatedAt:now,history:[...(previous?.history??[]),...(previous?[{buyMaxCents:previous.buyMaxCents,saleReferenceCents:previous.saleReferenceCents,changedAt:previous.updatedAt}]:(()=>{const base=priceGuideEntries.find(entry=>entry.model===model);return base?[{buyMaxCents:base.buyMaxCents,saleReferenceCents:base.saleReferenceCents,changedAt:PRICE_GUIDE_UPDATED_AT}]:[]})())].slice(-20)};setJsonSetting(user.userId,"price-guide-overrides",overrides);revalidatePath("/referencias");revalidatePath("/radar")}
+
+

@@ -1,6 +1,6 @@
 # BriqueGO
 
-Sistema local para analisar oportunidades, controlar compras, estoque, vendas e caixa de uma operação individual de revenda em Goiânia.
+Sistema local e gratuito para analisar oportunidades, controlar compras, estoque, vendas e caixa de uma operação individual de revenda.
 
 ## Como abrir
 
@@ -11,17 +11,27 @@ npm install
 npm run dev
 ```
 
-Abra `http://localhost:3000`. Não há login: o sistema foi preparado para uso por uma única pessoa no próprio computador.
+Abra `http://localhost:3000`. Não há login: o sistema foi preparado para uma única pessoa no próprio computador.
 
-## Banco local
+## Dados e backup
 
-Os dados ficam em `data/briquego.db`, um arquivo SQLite criado automaticamente na primeira inicialização. Para fazer backup, feche o sistema e copie os arquivos `data/briquego.db*` para outro local. O Git ignora essa pasta para não publicar seus dados pessoais.
+O banco SQLite fica em `data/briquego.db` e as fotos em `data/uploads`. Nada disso é publicado no Git. A tela **Backup local** baixa uma cópia consistente do banco completo e também oferece uma exportação JSON legível. Para restaurar, feche o sistema e substitua `data/briquego.db` pela cópia escolhida.
 
-## Tabela pessoal de valores
+## Funções disponíveis
 
-A tela **Tabela** contém os tetos de compra, referências de venda e regras informadas em 05/08/2026 para videogames, iPhones, televisões, bicicletas, motos e carros. Ao analisar uma oportunidade, o sistema reconhece modelos compatíveis, mostra o teto aplicável, reduz o teto de iPhones com bateria/tela trocada e bloqueia itens marcados como “não comprar”.
+- Tabela pessoal editável com histórico das últimas alterações.
+- Radar que destaca anúncios até o teto de compra mais uma tolerância configurável.
+- Captura em lote por texto, favoritos e comparação lado a lado.
+- Detector de expressões de risco e regras específicas de iPhones e videogames.
+- Assistente e diário de negociação.
+- Fotos locais e inspeções salvas em modo visita.
+- Compra, custos, estoque, anúncio, venda, garantia e recibo imprimível em PDF.
+- Sugestão de preço de anúncio e alerta de estoque parado.
+- Caixa disponível preservando uma reserva mínima e meta mensal.
+- Relatório por produto, fechamento mensal e pesquisa global.
+- Calculadoras gratuitas para carros e motos usando valores informados manualmente.
 
-Essa tabela é uma regra pessoal, não uma cotação automática. Os comparáveis continuam separados e exigem fonte, data e tipo de preço.
+O sistema não faz scraping automático. Facebook Marketplace, OLX, Mercado Livre e FIPE são fontes para consulta e cadastro manual; isso evita depender de serviços pagos ou de automações frágeis.
 
 ## Comandos
 
@@ -32,9 +42,3 @@ Essa tabela é uma regra pessoal, não uma cotação automática. Os comparávei
 - `npm test`: executa os testes unitários e de integração.
 - `npm run test:e2e`: executa o fluxo completo no navegador.
 - `npm run typecheck`: verifica os tipos.
-
-## O que funciona
-
-Cadastro manual e importação, comparáveis, estatísticas, cenários financeiros, recomendação explicável, tabela pessoal, checklists, compra, custos, estoque, anúncio, venda, livro-caixa, exportação CSV e backup JSON.
-
-Não há scraping nem integrações externas ativas. Facebook Marketplace, OLX, Mercado Livre e FIPE são referências para cadastro/consulta manual até que uma API oficial adequada seja configurada.

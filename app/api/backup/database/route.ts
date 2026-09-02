@@ -1,0 +1,2 @@
+import fs from "node:fs";import { dbPath,sqlite } from "@/database/client";import { getSession } from "@/lib/auth/session";
+export async function GET(){const user=await getSession();if(!user)return new Response("Não autorizado",{status:401});sqlite.pragma("wal_checkpoint(TRUNCATE)");const date=new Date().toISOString().slice(0,10);return new Response(fs.readFileSync(dbPath),{headers:{"Content-Type":"application/vnd.sqlite3","Content-Disposition":`attachment; filename="briquego-${date}.db"`,"Cache-Control":"no-store"}})}

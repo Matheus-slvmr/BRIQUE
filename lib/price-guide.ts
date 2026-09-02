@@ -47,9 +47,9 @@ export const priceGuideRules = [
 
 const normalize = (value: string) => value.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
 
-export function evaluatePriceGuide(input: { title?: string | null; category?: string | null; brand?: string | null; model?: string | null; version?: string | null; description?: string | null; defects?: string | null; specifications?: string | null; askingPriceCents?: number | null }) {
+export function evaluatePriceGuide(input: { title?: string | null; category?: string | null; brand?: string | null; model?: string | null; version?: string | null; description?: string | null; defects?: string | null; specifications?: string | null; askingPriceCents?: number | null }, entries: PriceGuideEntry[] = priceGuideEntries) {
   const text = normalize([input.title, input.category, input.brand, input.model, input.version, input.description, input.defects, input.specifications].filter(Boolean).join(" "));
-  const reference = priceGuideEntries.find((entry) => entry.keywords.some((keyword) => text.includes(normalize(keyword))));
+  const reference = entries.find((entry) => entry.keywords.some((keyword) => text.includes(normalize(keyword))));
   const blockedReasons: string[] = [];
   const warnings: string[] = [];
   let reduction = 0;
